@@ -1,8 +1,31 @@
 import os
 from functions.utils import create_path_validator
 import subprocess
+from google.genai import types
 
 file_validator = create_path_validator(must_be="file", operation="execute")
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Executes a Python file relative to the working directory with optional command-line arguments and returns the output",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the Python file to execute, relative to the working directory",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="Optional command-line arguments to pass to the Python script",
+                items=types.Schema(
+                    type=types.Type.STRING,
+                ),
+            ),
+        },
+        required=["file_path"],
+    ),
+)
 
 
 def run_python_file(working_directory, file_path, args=None):
