@@ -1,4 +1,3 @@
-import os
 from config import MAX_CHARS
 from functions.utils import create_path_validator
 

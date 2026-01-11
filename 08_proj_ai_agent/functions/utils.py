@@ -26,9 +26,7 @@ def create_path_validator(must_be=None, must_not_be=None, operation="access"):
 
         # Optional positive type checking (must be this type)
         if must_be == "file" and not os.path.isfile(absolute_path):
-            raise Exception(
-                f'Error: File not found or is not a regular file: "{target_path}"'
-            )
+            raise Exception(f'Error: "{target_path}" does not exist')
         elif must_be == "dir" and not os.path.isdir(absolute_path):
             raise Exception(
                 f'Error: Directory not found or is not a valid directory: "{target_path}"'
