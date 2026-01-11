@@ -1,0 +1,14 @@
+{
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    ".ruff_cache"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportImportCycles": "none",
+  "reportAssignmentType": "none",
+  "reportOptionalSubscript": "none"
+}
