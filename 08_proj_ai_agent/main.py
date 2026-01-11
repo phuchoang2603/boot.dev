@@ -1,4 +1,5 @@
 import argparse
+from inspect import _empty
 import os
 
 from dotenv import load_dotenv
@@ -6,7 +7,7 @@ from google import genai
 from google.genai import types
 
 from config import SYSTEM_PROMPT
-from functions.call_functions import available_functions
+from functions.call_functions import available_functions, call_function
 
 
 def main():
@@ -39,9 +40,24 @@ def main():
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 
+    function_results = []
+
     if response.function_calls is not None:
         for function_call in response.function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call, verbose=args.verbose)
+
+            if function_call_result.parts is None:
+                raise Exception("Error: Empty parts list")
+            if function_call_result.parts[0].function_response is None:
+                raise Exception("Error: Incorrect type returned")
+
+            function_response = function_call_result.parts[0].function_response.response
+            if function_response is None:
+                raise Exception("Error: Empty response")
+            if args.verbose is True:
+                print(f"-> {function_response}")
+
+            function_results.append(function_call_result.parts[0])
     else:
         print(response.text)
 
