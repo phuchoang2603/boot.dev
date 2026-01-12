@@ -1,5 +1,6 @@
 import re
 from collections.abc import Callable
+from functools import reduce
 
 from textnode import TextNode, TextType
 
@@ -108,3 +109,19 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
             lambda link: f"[{link[0]}]({link[1]})",
         )
     ]
+
+
+def text_to_textnodes(text) -> list[TextNode]:
+    transformations = [
+        split_nodes_image,
+        split_nodes_link,
+        lambda nodes: split_nodes_delimiter(nodes, "**", TextType.BOLD),
+        lambda nodes: split_nodes_delimiter(nodes, "_", TextType.ITALIC),
+        lambda nodes: split_nodes_delimiter(nodes, "`", TextType.CODE),
+    ]
+
+    return reduce(
+        lambda nodes, transform: transform(nodes),
+        transformations,
+        [TextNode(text, TextType.TEXT)],
+    )
