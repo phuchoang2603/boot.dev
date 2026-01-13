@@ -2,7 +2,8 @@ import re
 from collections.abc import Callable
 from functools import reduce
 
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, text_node_to_html_node
+from htmlnode import HTMLNode, LeafNode
 
 
 def extract_markdown_images(text: str) -> list[tuple]:
@@ -125,3 +126,10 @@ def text_to_textnodes(text) -> list[TextNode]:
         transformations,
         [TextNode(text, TextType.TEXT)],
     )
+
+
+def text_to_childrens(text: str) -> list[HTMLNode]:
+    childrens = []
+    for text_node in text_to_textnodes(text):
+        childrens.append(text_node_to_html_node(text_node))
+    return childrens
