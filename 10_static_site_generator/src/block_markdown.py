@@ -1,6 +1,6 @@
 from enum import Enum
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from inline_markdown import text_to_childrens
+from inline_markdown import text_to_children
 import re
 
 
@@ -52,7 +52,7 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
                 header, content = block.split(" ", maxsplit=1)
                 nodes.append(
                     ParentNode(
-                        tag=f"h{len(header)}", children=text_to_childrens(content)
+                        tag=f"h{len(header)}", children=text_to_children(content)
                     )
                 )
             case BlockType.CODE:
@@ -66,7 +66,7 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
                 nodes.append(
                     ParentNode(
                         tag="blockquote",
-                        children=text_to_childrens(content),
+                        children=text_to_children(content),
                     )
                 )
             case BlockType.UNORDERED_LIST:
@@ -75,7 +75,7 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
                     ParentNode(
                         tag="ul",
                         children=[
-                            ParentNode(tag="li", children=text_to_childrens(item))
+                            ParentNode(tag="li", children=text_to_children(item))
                             for item in items
                         ],
                     )
@@ -86,7 +86,7 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
                     ParentNode(
                         tag="ol",
                         children=[
-                            ParentNode(tag="li", children=text_to_childrens(item))
+                            ParentNode(tag="li", children=text_to_children(item))
                             for item in items
                         ],
                     )
@@ -94,7 +94,7 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
             case _:
                 nodes.append(
                     ParentNode(
-                        tag="p", children=text_to_childrens(block.replace("\n", " "))
+                        tag="p", children=text_to_children(block.replace("\n", " "))
                     )
                 )
 

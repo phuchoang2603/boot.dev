@@ -128,8 +128,8 @@ def text_to_textnodes(text) -> list[TextNode]:
     )
 
 
-def text_to_childrens(text: str) -> list[HTMLNode]:
-    childrens = []
+def text_to_children(text: str) -> list[HTMLNode]:
+    children = []
     for text_node in text_to_textnodes(text):
-        childrens.append(text_node_to_html_node(text_node))
-    return childrens
+        children.append(text_node_to_html_node(text_node))
+    return children
