@@ -1,9 +1,12 @@
-from textnode import TextNode, TextType
+from utils import copy_files
+from config import SRC_DIR, DES_DIR
 
 
 def main():
-    link_node = TextNode("Anchor text", TextType.LINK, "https://www.boot.dev")
-    print(link_node)
+    try:
+        copy_files(SRC_DIR, DES_DIR)
+    except Exception as e:
+        raise Exception(f"Error: {e}")
 
 
 if __name__ == "__main__":
