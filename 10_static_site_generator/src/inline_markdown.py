@@ -112,7 +112,7 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     ]
 
 
-def text_to_textnodes(text) -> list[TextNode]:
+def text_to_textnodes(text: str) -> list[TextNode]:
     transformations = [
         split_nodes_image,
         split_nodes_link,
@@ -129,7 +129,4 @@ def text_to_textnodes(text) -> list[TextNode]:
 
 
 def text_to_children(text: str) -> list[HTMLNode]:
-    children = []
-    for text_node in text_to_textnodes(text):
-        children.append(text_node_to_html_node(text_node))
-    return children
+    return [text_node_to_html_node(text_node) for text_node in text_to_textnodes(text)]

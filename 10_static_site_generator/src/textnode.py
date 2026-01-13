@@ -46,5 +46,3 @@ def text_node_to_html_node(textnode: TextNode) -> LeafNode:
                 value="",
                 props={"alt": textnode.text, "src": textnode.url},
             )
-        case _:
-            raise Exception("Error: Invalid text_type conversion")
