@@ -1,2 +1,3 @@
-SRC_DIR = "static"
-DES_DIR = "public"
+STATIC_DIR = "static"
+PUBLIC_DIR = "public"
+CONTENT_DIR = "content"
