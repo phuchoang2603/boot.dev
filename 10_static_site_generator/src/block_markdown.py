@@ -42,60 +42,56 @@ def block_to_block_type(block: str) -> BlockType:
     return BlockType.PARAGRAPH
 
 
+def _heading_to_html(block: str) -> HTMLNode:
+    header, content = block.split(" ", maxsplit=1)
+    return ParentNode(tag=f"h{len(header)}", children=text_to_children(content))
+
+
+def _code_to_html(block: str) -> HTMLNode:
+    return ParentNode(tag="pre", children=[LeafNode(tag="code", value=block[4:-4])])
+
+
+def _quote_to_html(block: str) -> HTMLNode:
+    content = "\n".join([line[2:] for line in block.split("\n")])
+    return ParentNode(tag="blockquote", children=text_to_children(content))
+
+
+def _unordered_list_to_html(block: str) -> HTMLNode:
+    items = [line[2:] for line in block.split("\n")]
+    return ParentNode(
+        tag="ul",
+        children=[
+            ParentNode(tag="li", children=text_to_children(item)) for item in items
+        ],
+    )
+
+
+def _ordered_list_to_html(block: str) -> HTMLNode:
+    items = [line[3:] for line in block.split("\n")]
+    return ParentNode(
+        tag="ol",
+        children=[
+            ParentNode(tag="li", children=text_to_children(item)) for item in items
+        ],
+    )
+
+
+def _paragraph_to_html(block: str) -> HTMLNode:
+    return ParentNode(tag="p", children=text_to_children(block.replace("\n", " ")))
+
+
+BLOCK_CONVERTER = {
+    BlockType.HEADING: _heading_to_html,
+    BlockType.CODE: _code_to_html,
+    BlockType.QUOTE: _quote_to_html,
+    BlockType.UNORDERED_LIST: _unordered_list_to_html,
+    BlockType.ORDERED_LIST: _ordered_list_to_html,
+    BlockType.PARAGRAPH: _paragraph_to_html,
+}
+
+
 def markdown_to_html_node(markdown: str) -> HTMLNode:
     blocks = markdown_to_blocks(markdown)
-    nodes = []
-    for block in blocks:
-        block_type = block_to_block_type(block)
-        match block_type:
-            case BlockType.HEADING:
-                header, content = block.split(" ", maxsplit=1)
-                nodes.append(
-                    ParentNode(
-                        tag=f"h{len(header)}", children=text_to_children(content)
-                    )
-                )
-            case BlockType.CODE:
-                nodes.append(
-                    ParentNode(
-                        tag="pre", children=[LeafNode(tag="code", value=block[4:-4])]
-                    )
-                )
-            case BlockType.QUOTE:
-                content = "\n".join([line[2:] for line in block.split("\n")])
-                nodes.append(
-                    ParentNode(
-                        tag="blockquote",
-                        children=text_to_children(content),
-                    )
-                )
-            case BlockType.UNORDERED_LIST:
-                items = [line[2:] for line in block.split("\n")]
-                nodes.append(
-                    ParentNode(
-                        tag="ul",
-                        children=[
-                            ParentNode(tag="li", children=text_to_children(item))
-                            for item in items
-                        ],
-                    )
-                )
-            case BlockType.ORDERED_LIST:
-                items = [line[3:] for line in block.split("\n")]
-                nodes.append(
-                    ParentNode(
-                        tag="ol",
-                        children=[
-                            ParentNode(tag="li", children=text_to_children(item))
-                            for item in items
-                        ],
-                    )
-                )
-            case _:
-                nodes.append(
-                    ParentNode(
-                        tag="p", children=text_to_children(block.replace("\n", " "))
-                    )
-                )
+    nodes = [BLOCK_CONVERTER[block_to_block_type(block)](block) for block in blocks]
 
     return ParentNode(tag="div", children=nodes)
