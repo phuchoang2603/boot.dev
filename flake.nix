@@ -1,73 +1,61 @@
 {
-  description = "Development environment for boot.dev with Go and Python";
+  description = "Modernized Go and Python (uv) learning environment";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-    }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
+    { self, nixpkgs }:
+    let
+      # Define supported systems
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-        # Python with required packages
-        pythonEnv = pkgs.python312.withPackages (
-          ps: with ps; [
-            google-genai
-            python-dotenv
-            pip
-          ]
+      # Helper to generate outputs for all systems
+      forAllSystems =
+        f:
+        nixpkgs.lib.genAttrs systems (
+          system:
+          f (
+            import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+            }
+          )
         );
+    in
+    {
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            # Go Development
+            go
+            gopls # Language Server
+            go-tools # Static analysis tools
 
-        # Go environment
-        goEnv = pkgs.buildGoModule {
-          name = "boot-dev-go";
-          src = ./13_go;
-          vendorHash = null;
-        };
-
-      in
-      {
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            # Go toolchain
-            go_1_25
-            gopls
-            go-tools
-
-            # Python environment
-            pythonEnv
-            python312Packages.pip
-
-            # Development tools
-            git
-            curl
-            wget
-            vim
+            # Python Development (using uv)
+            uv
+            python312 # Base interpreter for uv to use
           ];
 
           shellHook = ''
-            echo "Welcome to the boot.dev development environment!"
-            echo "Go version: $(go version)"
-            echo "Python version: $(python --version)"
-            echo ""
-            echo "Available directories:"
-            echo "  - 13_go/     : Go exercises and projects"
-            echo "  - 08_proj_ai_agent/ : Python AI agent project"
-            echo "  - Other Python projects in numbered directories"
-            echo ""
-            echo "To start developing:"
-            echo "  - For Go: cd 13_go && go run ."
-            echo "  - For Python: cd 08_proj_ai_agent && python main.py"
+            # --- Python/uv Setup ---
+            # Prevents uv from trying to manage its own Python binaries
+            # which can cause issues on NixOS
+            export UV_PYTHON_PREFERENCE="only-managed"
+            export UV_PYTHON_INSTALL_DIR="${pkgs.python312}"
+
+            echo "🚀 Learning Env Loaded!"
+            echo "🐹 Go: $(go version)"
+            echo "🐍 Python: $(python --version)"
+            echo "⚡ uv: $(uv --version)"
           '';
         };
-      }
-    );
+      });
+    };
 }
