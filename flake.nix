@@ -36,6 +36,7 @@
             # Go Development
             go
             gopls # Language Server
+            gofumpt # Formatter
             go-tools # Static analysis tools
             delve # Debugger (DAP)
             golangci-lint # Linter (Recommended for Go extra)
