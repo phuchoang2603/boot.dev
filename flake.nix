@@ -37,10 +37,14 @@
             go
             gopls # Language Server
             go-tools # Static analysis tools
+            delve # Debugger (DAP)
+            golangci-lint # Linter (Recommended for Go extra)
 
             # Python Development (using uv)
             uv
             python312 # Base interpreter for uv to use
+            pyright # LSP
+            ruff # Linter & Formatter
           ];
 
           shellHook = ''
