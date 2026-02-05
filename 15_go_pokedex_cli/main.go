@@ -10,6 +10,7 @@ type config struct {
 	next          *string
 	previous      *string
 	pokeapiClient pokeapi.Client
+	pokedex       map[string]pokeapi.Pokemon
 }
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		next:          nil,
 		previous:      nil,
 		pokeapiClient: pokeClient,
+		pokedex:       make(map[string]pokeapi.Pokemon),
 	}
 
 	startRepl(&cfg)

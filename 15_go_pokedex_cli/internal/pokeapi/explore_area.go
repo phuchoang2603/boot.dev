@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -68,7 +67,6 @@ func (c *Client) GetLocationInfo(locationArea string) (locationResp LocationInfo
 	data, found := c.cache.Get(url)
 
 	if !found {
-		fmt.Println("Cache miss")
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return locationResp, err

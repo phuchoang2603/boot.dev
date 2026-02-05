@@ -38,6 +38,21 @@ func getCommands() map[string]cliCommand {
 			description: "Displays pokemons in the provided area",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch {pokemon}",
+			description: "Throw a ball at pokemon with a chance to catch it",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect {pokemon}",
+			description: "Inspect a pokemon you already caught",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "View all pokemons you already caught",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -56,5 +71,6 @@ func commandHelp(cfg *config, args ...string) error {
 		fmt.Printf("%v: %v\n", value.name, value.description)
 	}
 
+	fmt.Println()
 	return nil
 }
