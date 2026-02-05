@@ -12,7 +12,7 @@ func cleanInput(text string) []string {
 	return strings.Fields(loweredText)
 }
 
-func startRepl() {
+func startRepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -29,7 +29,7 @@ func startRepl() {
 			fmt.Println("Unknown command")
 			continue
 		} else {
-			if err := command.callback(); err != nil {
+			if err := command.callback(cfg); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 		}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -8,7 +9,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -25,19 +26,24 @@ func getCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays location areas",
+			description: "Displays next 20 location areas",
 			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays previous 20 location areas",
+			callback:    commandMapb,
 		},
 	}
 }
 
-func commandExit() error {
+func commandExit(cfg *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(cfg *config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 
@@ -48,6 +54,36 @@ func commandHelp() error {
 	return nil
 }
 
-func commandMap() error {
+func commandMap(cfg *config) error {
+	locationResp, err := cfg.pokeapiClient.GetLocationAreaResp(cfg.next)
+	if err != nil {
+		return err
+	}
+
+	cfg.next = locationResp.Next
+	cfg.previous = locationResp.Previous
+
+	for _, locationArea := range locationResp.Results {
+		fmt.Println(locationArea.Name)
+	}
+	return nil
+}
+
+func commandMapb(cfg *config) error {
+	if cfg.previous == nil {
+		return errors.New("you're on the first page")
+	}
+
+	locationResp, err := cfg.pokeapiClient.GetLocationAreaResp(cfg.previous)
+	if err != nil {
+		return err
+	}
+
+	cfg.next = locationResp.Next
+	cfg.previous = locationResp.Previous
+
+	for _, locationArea := range locationResp.Results {
+		fmt.Println(locationArea.Name)
+	}
 	return nil
 }

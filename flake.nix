@@ -46,6 +46,9 @@
             python312 # Base interpreter for uv to use
             pyright # LSP
             ruff # Linter & Formatter
+
+            # Json
+            vscode-langservers-extracted # LSPs for JSON, HTML, CSS
           ];
 
           shellHook = ''
