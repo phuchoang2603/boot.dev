@@ -1,7 +1,27 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Print("Pokedex > ")
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			words := cleanInput(line)
+			fmt.Printf("Your command was: %v\n", words[0])
+			break
+		}
+
+		if err := scanner.Err(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+
+	}
 }
