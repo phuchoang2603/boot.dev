@@ -21,7 +21,8 @@ type LocationArea struct {
 
 func (c *Client) GetLocationAreaResp(url *string) (locationResp LocationAreaResp, err error) {
 	if url == nil {
-		url = &defaultURL
+		fullURL := baseURL + "/location-area/"
+		url = &fullURL
 	}
 
 	data, found := c.cache.Get(*url)
