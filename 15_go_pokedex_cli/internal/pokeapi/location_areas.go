@@ -2,6 +2,8 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -22,20 +24,30 @@ func (c *Client) GetLocationAreaResp(url *string) (locationResp LocationAreaResp
 		url = &defaultURL
 	}
 
-	req, err := http.NewRequest("GET", *url, nil)
-	if err != nil {
-		return locationResp, err
+	data, found := c.cache.Get(*url)
+
+	if !found {
+		fmt.Println("Cache miss")
+		req, err := http.NewRequest("GET", *url, nil)
+		if err != nil {
+			return locationResp, err
+		}
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			return locationResp, err
+		}
+		defer resp.Body.Close()
+
+		data, err = io.ReadAll(resp.Body)
+		if err != nil {
+			return locationResp, err
+		}
+		c.cache.Add(*url, data)
 	}
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return locationResp, err
-	}
-	defer resp.Body.Close()
-
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&locationResp); err != nil {
-		return locationResp, err
+	if err := json.Unmarshal(data, &locationResp); err != nil {
+		return LocationAreaResp{}, err
 	}
 
 	return locationResp, nil
