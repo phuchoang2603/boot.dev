@@ -49,14 +49,17 @@
           ];
 
           shellHook = ''
+            # --- Go Setup ---
+            export GOPATH="$HOME/go"
+            export PATH="$GOPATH/bin:$PATH"
+
             # --- Python/uv Setup ---
-            # Prevents uv from trying to manage its own Python binaries
-            # which can cause issues on NixOS
             export UV_PYTHON_PREFERENCE="only-managed"
             export UV_PYTHON_INSTALL_DIR="${pkgs.python312}"
 
             echo "🚀 Learning Env Loaded!"
             echo "🐹 Go: $(go version)"
+            echo "   ↳ GOPATH: $GOPATH"
             echo "🐍 Python: $(python --version)"
             echo "⚡ uv: $(uv --version)"
           '';
