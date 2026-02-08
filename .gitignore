@@ -202,3 +202,8 @@ pyrightconfig.json
 # Go workspace file
 go.work
 15_go_pokedex_cli/15_go_pokedex_cli
+
+
+# Gitignore for the following technologies: Datagrip
+.idea
+.project

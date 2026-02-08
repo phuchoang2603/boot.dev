@@ -47,6 +47,10 @@
             pyright # LSP
             ruff # Linter & Formatter
 
+            # SQL
+            sqlfluff
+            sqlite
+
             # Json
             vscode-langservers-extracted # LSPs for JSON, HTML, CSS
           ];
@@ -59,12 +63,6 @@
             # --- Python/uv Setup ---
             export UV_PYTHON_PREFERENCE="only-managed"
             export UV_PYTHON_INSTALL_DIR="${pkgs.python312}"
-
-            echo "🚀 Learning Env Loaded!"
-            echo "🐹 Go: $(go version)"
-            echo "   ↳ GOPATH: $GOPATH"
-            echo "🐍 Python: $(python --version)"
-            echo "⚡ uv: $(uv --version)"
           '';
         };
       });
