@@ -48,7 +48,6 @@
             ruff # Linter & Formatter
 
             # SQL
-            sqlfluff
             sqlite
 
             # Json
