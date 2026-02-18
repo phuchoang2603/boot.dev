@@ -63,8 +63,9 @@
             export PATH="$GOPATH/bin:$PATH"
 
             # --- Python/uv Setup ---
-            export UV_PYTHON_PREFERENCE="only-managed"
-            export UV_PYTHON_INSTALL_DIR="${pkgs.python312}"
+            export UV_PYTHON="$(which python3)"
+            export UV_PYTHON_INSTALL_DIR="$HOME/.local/share/uv/python"
+            export UV_PYTHON_PREFERENCE="only-system"
 
             # --- Postgresql Setup ---
             export PGHOST="localhost"

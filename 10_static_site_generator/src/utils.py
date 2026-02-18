@@ -73,7 +73,7 @@ def generate_pages(src_dir: str, des_dir: str) -> None:
         despath = os.path.join(des_dir, filename)
 
         if os.path.isfile(filepath):
-            despath_html = str(Path(despath).with_suffix("html"))
+            despath_html = str(Path(despath).with_suffix(".html"))
             generate_page(from_path=filepath, dest_path=despath_html)
         else:
             generate_pages(src_dir=filepath, des_dir=despath)

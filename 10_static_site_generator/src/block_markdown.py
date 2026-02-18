@@ -29,7 +29,7 @@ def block_to_block_type(block: str) -> BlockType:
         return BlockType.CODE
 
     lines = block.split("\n")
-    if all(line.startswith("> ") for line in lines):
+    if all(line.startswith(">") or not line.strip() for line in lines):
         return BlockType.QUOTE
 
     if all(line.startswith("- ") for line in lines):
@@ -52,7 +52,14 @@ def _code_to_html(block: str) -> HTMLNode:
 
 
 def _quote_to_html(block: str) -> HTMLNode:
-    content = "\n".join([line[2:] for line in block.split("\n")])
+    processed_lines: list[str] = []
+    for line in block.split("\n"):
+        if line.startswith(">"):
+            processed_lines.append(line[1:].lstrip(" "))
+        else:
+            processed_lines.append(line)
+
+    content = "\n".join(processed_lines)
     return ParentNode(tag="blockquote", children=text_to_children(content))
 
 

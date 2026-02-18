@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 from htmlnode import LeafNode
 
@@ -17,7 +19,10 @@ class TextNode:
         self.text_type = text_type
         self.url = url
 
-    def __eq__(self, other: TextNode) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TextNode):
+            return False
+
         return (
             self.text == other.text
             and self.text_type == other.text_type
