@@ -9,26 +9,6 @@ import (
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/database"
 )
 
-func handlerLogin(s *state, cmd command) error {
-	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: %s <username>", cmd.Name)
-	}
-
-	username := cmd.Args[0]
-
-	if _, err := s.db.GetUser(context.Background(), username); err != nil {
-		return fmt.Errorf("user %s does not exist", username)
-	}
-
-	if err := s.cfg.SetUser(username); err != nil {
-		return err
-	}
-
-	fmt.Printf("Logged in as %s\n", username)
-
-	return nil
-}
-
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <username>", cmd.Name)
@@ -45,15 +25,39 @@ func handlerRegister(s *state, cmd command) error {
 
 	userData, err := s.db.CreateUser(context.Background(), userParams)
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating user: %v", err)
 	}
 
 	if err := s.cfg.SetUser(username); err != nil {
-		return err
+		return fmt.Errorf("error setting user in config: %v", err)
 	}
 
-	fmt.Printf("Registered and logged in as %s\n", username)
-	fmt.Printf("User data: %+v\n", userData)
+	printUser(userData)
 
 	return nil
+}
+
+func handlerLogin(s *state, cmd command) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <username>", cmd.Name)
+	}
+
+	username := cmd.Args[0]
+	userData, err := s.db.GetUser(context.Background(), username)
+	if err != nil {
+		return fmt.Errorf("user %s does not exist", username)
+	}
+
+	if err := s.cfg.SetUser(username); err != nil {
+		return fmt.Errorf("error setting user in config: %v", err)
+	}
+
+	printUser(userData)
+
+	return nil
+}
+
+func printUser(user database.User) {
+	fmt.Printf(" * ID:      %v\n", user.ID)
+	fmt.Printf(" * Name:    %v\n", user.Name)
 }

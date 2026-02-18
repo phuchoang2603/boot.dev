@@ -23,8 +23,7 @@ func main() {
 	}
 
 	// Initialize the database connection.
-	dbURL := cfg.DBURL
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
 		log.Fatal(err)
 	}
