@@ -40,7 +40,6 @@
             go-tools # Static analysis tools
             delve # Debugger (DAP)
             golangci-lint # Linter (Recommended for Go extra)
-            goose
 
             # Python Development (using uv)
             uv
@@ -51,6 +50,8 @@
             # SQL
             sqlite
             postgresql
+            goose
+            sqlc
 
             # Json
             vscode-langservers-extracted # LSPs for JSON, HTML, CSS

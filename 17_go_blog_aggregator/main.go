@@ -1,31 +1,49 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/config"
+	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/database"
 )
 
 type state struct {
-	config *config.Config
+	cfg *config.Config
+	db  *database.Queries
 }
 
 func main() {
+	// Reading the configuration.
 	cfg, err := config.Read()
 	if err != nil {
 		log.Fatalf("Error reading config: %v", err)
 	}
 
+	// Initialize the database connection.
+	dbURL := cfg.DBURL
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	dbQueries := database.New(db)
+
+	// Create the program state.
 	programState := state{
 		&cfg,
+		dbQueries,
 	}
 
+	// Set up the command handlers.
 	cmds := commands{
 		make(map[string]func(*state, command) error),
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	args := os.Args
 	if len(args) < 2 {
