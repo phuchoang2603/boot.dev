@@ -8,11 +8,13 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/config"
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/database"
+	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/rss"
 )
 
 type state struct {
-	cfg *config.Config
-	db  *database.Queries
+	cfg       *config.Config
+	db        *database.Queries
+	rssClient *rss.Client
 }
 
 func main() {
@@ -30,10 +32,14 @@ func main() {
 	defer db.Close()
 	dbQueries := database.New(db)
 
+	// Initialize Rssfeed Client
+	client := rss.NewClient()
+
 	// Create the program state.
 	programState := state{
 		&cfg,
 		dbQueries,
+		client,
 	}
 
 	// Set up the command handlers.
@@ -45,6 +51,8 @@ func main() {
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+
+	cmds.register("agg", handleAggregate)
 
 	args := os.Args
 	if len(args) < 2 {
