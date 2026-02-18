@@ -40,6 +40,7 @@
             go-tools # Static analysis tools
             delve # Debugger (DAP)
             golangci-lint # Linter (Recommended for Go extra)
+            goose
 
             # Python Development (using uv)
             uv
@@ -49,6 +50,7 @@
 
             # SQL
             sqlite
+            postgresql
 
             # Json
             vscode-langservers-extracted # LSPs for JSON, HTML, CSS
@@ -62,6 +64,11 @@
             # --- Python/uv Setup ---
             export UV_PYTHON_PREFERENCE="only-managed"
             export UV_PYTHON_INSTALL_DIR="${pkgs.python312}"
+
+            # --- Postgresql Setup ---
+            export PGHOST="localhost"
+            export PGUSER="postgres"
+            export PGPASSWORD="postgres"
           '';
         };
       });
