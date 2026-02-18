@@ -57,6 +57,39 @@ func handlerLogin(s *state, cmd command) error {
 	return nil
 }
 
+func handlerUsers(s *state, cmd command) error {
+	if len(cmd.Args) != 0 {
+		return fmt.Errorf("usage: %s", cmd.Name)
+	}
+
+	users, err := s.db.GetAllUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("error fetching users: %v", err)
+	}
+
+	for _, user := range users {
+		if user.Name == s.cfg.CurrentUserName {
+			fmt.Printf("* %v (current)\n", user.Name)
+			continue
+		}
+		fmt.Printf("* %v\n", user.Name)
+	}
+
+	return nil
+}
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.Args) != 0 {
+		return fmt.Errorf("usage: %s", cmd.Name)
+	}
+
+	if err := s.db.DeleteAllUsers(context.Background()); err != nil {
+		return fmt.Errorf("error deleting users: %v", err)
+	}
+
+	return nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf(" * ID:      %v\n", user.ID)
 	fmt.Printf(" * Name:    %v\n", user.Name)
