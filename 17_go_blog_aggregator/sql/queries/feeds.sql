@@ -9,6 +9,11 @@ VALUES ($1,
 RETURNING *;
 
 -- name: GetAllFeeds :many
-SELECT name, url, (select name from users WHERE users.id = feeds.user_id) as username
+SELECT name, url, (SELECT name FROM users WHERE users.id = feeds.user_id) AS username
 FROM feeds;
 
+-- name: GetFeed :one
+SELECT *
+FROM feeds
+WHERE url = $1
+LIMIT 1;
