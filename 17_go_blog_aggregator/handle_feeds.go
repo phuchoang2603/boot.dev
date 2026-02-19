@@ -9,21 +9,6 @@ import (
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/database"
 )
 
-func handlerAggregate(s *state, cmd command) error {
-	if len(cmd.Args) != 0 {
-		return fmt.Errorf("usage: %s", cmd.Name)
-	}
-
-	feedURL := "https://www.wagslane.dev/index.xml"
-
-	_, err := s.rssClient.FetchFeed(context.Background(), feedURL)
-	if err != nil {
-		return fmt.Errorf("error fetching feed: %v", err)
-	}
-
-	return nil
-}
-
 func handlerAddFeed(s *state, cmd command, currentUser database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <feed_name> <feed_url>", cmd.Name)
