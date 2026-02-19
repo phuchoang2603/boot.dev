@@ -9,14 +9,9 @@ import (
 	"github.com/phuchoang2603/boot.dev/17_go_blog_aggregator/internal/database"
 )
 
-func handleFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, currentUser database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
-	}
-
-	currentUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error fetching current user: %v", err)
 	}
 
 	feed, err := s.db.GetFeed(context.Background(), cmd.Args[0])
@@ -42,14 +37,9 @@ func handleFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handleFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, currentUser database.User) error {
 	if len(cmd.Args) != 0 {
 		return fmt.Errorf("usage: %s", cmd.Name)
-	}
-
-	currentUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("error fetching current user: %v", err)
 	}
 
 	followingList, err := s.db.GetFeedFollowsForUser(context.Background(), currentUser.Name)
