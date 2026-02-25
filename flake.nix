@@ -49,7 +49,6 @@
 
             # SQL
             sqlite
-            postgresql
             goose
             sqlc
 
@@ -66,11 +65,6 @@
             export UV_PYTHON="$(which python3)"
             export UV_PYTHON_INSTALL_DIR="$HOME/.local/share/uv/python"
             export UV_PYTHON_PREFERENCE="only-system"
-
-            # --- Postgresql Setup ---
-            export PGHOST="localhost"
-            export PGUSER="postgres"
-            export PGPASSWORD="postgres"
           '';
         };
       });
