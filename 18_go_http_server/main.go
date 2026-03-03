@@ -3,21 +3,24 @@ package main
 import (
 	"log"
 	"net/http"
+	"sync/atomic"
 )
-
-func serveReadiness(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(http.StatusText(http.StatusOK)))
-}
 
 func main() {
 	const port = "8080"
 	const filePath = "."
 	mux := http.NewServeMux()
+	cfg := apiConfig{
+		fileserverHits: atomic.Int32{},
+	}
 
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filePath))))
-	mux.HandleFunc("/healthz", serveReadiness)
+	fileServerHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filePath)))
+	mux.Handle("/app/", cfg.middlewareMetricsInc(fileServerHandler))
+	mux.HandleFunc("POST /api/validate_chirp", validateChirp)
+
+	mux.HandleFunc("GET /api/healthz", serveReadiness)
+	mux.HandleFunc("GET /admin/metrics", cfg.getMetrics)
+	mux.HandleFunc("POST /admin/reset", cfg.resetMetrics)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
