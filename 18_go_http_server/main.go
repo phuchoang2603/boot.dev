@@ -10,17 +10,18 @@ func main() {
 	const port = "8080"
 	const filePath = "."
 	mux := http.NewServeMux()
-	cfg := apiConfig{
+	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 	}
 
-	fileServerHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filePath)))
-	mux.Handle("/app/", cfg.middlewareMetricsInc(fileServerHandler))
-	mux.HandleFunc("POST /api/validate_chirp", validateChirp)
+	handlerFS := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filePath))))
+	mux.Handle("/app/", handlerFS)
 
-	mux.HandleFunc("GET /api/healthz", serveReadiness)
-	mux.HandleFunc("GET /admin/metrics", cfg.getMetrics)
-	mux.HandleFunc("POST /admin/reset", cfg.resetMetrics)
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.HandleFunc("POST /api/validate_chirp", handlerChirpsValidate)
+
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
