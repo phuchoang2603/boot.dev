@@ -17,7 +17,7 @@ func (c *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 	})
 }
 
-func (c *apiConfig) getMetrics(w http.ResponseWriter, req *http.Request) {
+func (c *apiConfig) handlerMetrics(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 
@@ -26,7 +26,7 @@ func (c *apiConfig) getMetrics(w http.ResponseWriter, req *http.Request) {
 		c.fileserverHits.Load())
 }
 
-func (c *apiConfig) resetMetrics(w http.ResponseWriter, req *http.Request) {
+func (c *apiConfig) handlerReset(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
