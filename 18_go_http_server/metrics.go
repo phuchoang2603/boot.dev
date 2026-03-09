@@ -23,8 +23,24 @@ func (c *apiConfig) handlerMetrics(w http.ResponseWriter, req *http.Request) {
 
 func (c *apiConfig) handlerReset(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+
+	if c.platform != "dev" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 
 	c.fileserverHits.Store(0)
-	fmt.Fprintf(w, "Reset hit to 0")
+	fmt.Fprintln(w, "Reset hit to 0")
+
+	if err := c.db.DeleteAllUsers(req.Context()); err != nil {
+		fmt.Fprintf(w, "Failed to reset users: %v", err)
+	}
+	fmt.Fprintln(w, "Reset users successfully")
+}
+
+func handlerReadiness(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
