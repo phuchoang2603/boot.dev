@@ -38,5 +38,5 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 	resp.UpdatedAt = user.UpdatedAt
 	resp.Email = user.Email
 
-	respondWithJSON(w, 201, resp)
+	respondWithJSON(w, http.StatusCreated, resp)
 }
