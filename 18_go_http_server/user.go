@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/phuchoang2603/boot.dev/18_go_http_server/internal/auth"
+	"github.com/phuchoang2603/boot.dev/18_go_http_server/internal/database"
 )
 
 type User struct {
@@ -17,7 +19,8 @@ type User struct {
 
 func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) {
 	params := struct {
-		Email string `json:"email"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
 	}{}
 
 	resp := User{}
@@ -28,7 +31,16 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	user, err := c.db.CreateUser(req.Context(), params.Email)
+	hashedPassword, err := auth.HashPassword(params.Password)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
+		return
+	}
+
+	user, err := c.db.CreateUser(req.Context(), database.CreateUserParams{
+		Email:          params.Email,
+		HashedPassword: hashedPassword,
+	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error creating user", err)
 	}
@@ -39,4 +51,41 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 	resp.Email = user.Email
 
 	respondWithJSON(w, http.StatusCreated, resp)
+}
+
+func (c *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request) {
+	params := struct {
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}{}
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&params); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error decoding request body", err)
+		return
+	}
+
+	user, err := c.db.GetUserByEmail(req.Context(), params.Email)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "User not found", nil)
+		return
+	}
+
+	isValid, err := auth.CheckPasswordHash(params.Password, user.HashedPassword)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error checking password hash", err)
+		return
+	}
+
+	if !isValid {
+		respondWithError(w, http.StatusUnauthorized, "Incorrect email or password", nil)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, User{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Email:     user.Email,
+	})
 }
