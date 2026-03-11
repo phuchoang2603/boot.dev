@@ -48,7 +48,7 @@ func (c *apiConfig) handlerCreateChirp(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	chirp, err := c.db.CreateChirps(req.Context(), database.CreateChirpsParams{
+	chirp, err := c.db.CreateChirp(req.Context(), database.CreateChirpParams{
 		Body:   replaceBadWord(params.Body),
 		UserID: validUserID,
 	})

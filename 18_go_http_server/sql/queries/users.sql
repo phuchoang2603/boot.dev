@@ -11,3 +11,11 @@ FROM users;
 SELECT *
 FROM users
 WHERE email = $1;
+
+-- name: GetUserFromRefreshToken :one
+SELECT u.*
+FROM users u
+         JOIN refresh_tokens rt ON u.id = rt.user_id
+WHERE rt.token = $1
+  AND revoked_at IS NULL
+  AND expires_at > NOW();
