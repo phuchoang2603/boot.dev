@@ -23,8 +23,6 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 		Email    string `json:"email"`
 	}{}
 
-	resp := User{}
-
 	decoder := json.NewDecoder(req.Body)
 	if err := decoder.Decode(&params); err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error decoding request body", err)
@@ -45,18 +43,19 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 		respondWithError(w, http.StatusInternalServerError, "Error creating user", err)
 	}
 
-	resp.ID = user.ID
-	resp.CreatedAt = user.CreatedAt
-	resp.UpdatedAt = user.UpdatedAt
-	resp.Email = user.Email
-
-	respondWithJSON(w, http.StatusCreated, resp)
+	respondWithJSON(w, http.StatusCreated, User{
+		user.ID,
+		user.CreatedAt,
+		user.UpdatedAt,
+		user.Email,
+	})
 }
 
 func (c *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request) {
 	params := struct {
-		Password string `json:"password"`
-		Email    string `json:"email"`
+		Password  string        `json:"password"`
+		Email     string        `json:"email"`
+		ExpiresIn time.Duration `json:"expires_in_seconds"`
 	}{}
 
 	decoder := json.NewDecoder(req.Body)
@@ -82,10 +81,28 @@ func (c *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, User{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
-	})
+	if params.ExpiresIn == 0 {
+		params.ExpiresIn = 3600 * time.Second
+	}
+
+	token, err := auth.MakeJWT(user.ID, c.jwtSecret, params.ExpiresIn)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error generating JWT", err)
+		return
+	}
+
+	resp := struct {
+		User
+		Token string `json:"token"`
+	}{
+		User: User{
+			ID:        user.ID,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			Email:     user.Email,
+		},
+		Token: token,
+	}
+
+	respondWithJSON(w, http.StatusOK, resp)
 }
