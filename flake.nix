@@ -54,6 +54,10 @@
 
             # Json
             vscode-langservers-extracted # LSPs for JSON, HTML, CSS
+
+            # For S3 course
+            ffmpeg
+            awscli2
           ];
 
           shellHook = ''

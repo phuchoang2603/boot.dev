@@ -207,3 +207,5 @@ go.work
 # Gitignore for the following technologies: Datagrip
 .idea
 .project
+
+.DS_Store
