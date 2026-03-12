@@ -16,6 +16,14 @@ func GetBearerToken(headers http.Header) (string, error) {
 	return strings.TrimPrefix(authHeader, "Bearer "), nil
 }
 
+func GetAPIKey(headers http.Header) (string, error) {
+	authHeader := headers.Get("Authorization")
+	if !strings.HasPrefix(authHeader, "ApiKey ") {
+		return "", http.ErrNoCookie
+	}
+	return strings.TrimPrefix(authHeader, "ApiKey "), nil
+}
+
 func MakeRefreshToken() string {
 	b := make([]byte, 32)
 

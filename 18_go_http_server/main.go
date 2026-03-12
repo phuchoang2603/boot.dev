@@ -17,28 +17,29 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 	jwtSecret      string
+	polkaKey       string
 }
+
+const (
+	port     = "8080"
+	filePath = "."
+)
 
 func main() {
 	godotenv.Load()
 
-	dbURL := os.Getenv("DB_URL")
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
-	dbQueries := database.New(db)
 
-	const port = "8080"
-	const filePath = "."
-	platform := os.Getenv("PLATFORM")
-	jwtSecret := os.Getenv("JWT_SECRET")
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
-		db:             dbQueries,
-		platform:       platform,
-		jwtSecret:      jwtSecret,
+		db:             database.New(db),
+		platform:       os.Getenv("PLATFORM"),
+		jwtSecret:      os.Getenv("JWT_SECRET"),
+		polkaKey:       os.Getenv("POLKA_KEY"),
 	}
 
 	mux := http.NewServeMux()
@@ -56,6 +57,8 @@ func main() {
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetChirpByID)
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirpByID)
+
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerUpgradeChirpyRead)
 
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
