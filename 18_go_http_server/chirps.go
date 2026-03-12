@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -86,15 +87,50 @@ func replaceBadWord(body string) (cleanedBody string) {
 	return strings.Join(cleanedWords, " ")
 }
 
+func getAuthorID(r *http.Request) (uuid.UUID, error) {
+	authorIDString := r.URL.Query().Get("author_id")
+	if authorIDString == "" {
+		return uuid.Nil, nil
+	}
+	authorID, err := uuid.Parse(authorIDString)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return authorID, nil
+}
+
 func (c *apiConfig) handlerGetChirps(w http.ResponseWriter, req *http.Request) {
-	chirps, err := c.db.GetChirps(req.Context())
+	authorID, err := getAuthorID(req)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid author_id", err)
+		return
+	}
+
+	var chirps []database.Chirp
+
+	if authorID != uuid.Nil {
+		chirps, err = c.db.GetChirpsByUserId(req.Context(), authorID)
+	} else {
+		chirps, err = c.db.GetChirps(req.Context())
+	}
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error getting chirps", err)
 		return
 	}
 
-	resp := []Chirp{}
+	sortDirection := "asc"
+	if req.URL.Query().Get("sort") == "desc" {
+		sortDirection = "desc"
+	}
 
+	sort.Slice(chirps, func(i, j int) bool {
+		if sortDirection == "desc" {
+			return chirps[i].CreatedAt.After(chirps[j].CreatedAt)
+		}
+		return chirps[i].CreatedAt.Before(chirps[j].CreatedAt)
+	})
+
+	resp := []Chirp{}
 	for _, chirp := range chirps {
 		resp = append(resp, Chirp{
 			ID:        chirp.ID,
