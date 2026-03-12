@@ -53,6 +53,56 @@ func (c *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) 
 	})
 }
 
+func (c *apiConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request) {
+	accessToken, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
+		return
+	}
+
+	validUserID, err := auth.ValidateJWT(accessToken, c.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
+		return
+	}
+
+	params := struct {
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}{}
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&params); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error decoding request body", err)
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(params.Password)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error hashing password", err)
+		return
+	}
+
+	user, err := c.db.UpdateUser(req.Context(), database.UpdateUserParams{
+		ID:             validUserID,
+		Email:          params.Email,
+		HashedPassword: hashedPassword,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error updating user", err)
+		return
+	}
+
+	resp := User{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Email:     user.Email,
+	}
+
+	respondWithJSON(w, http.StatusOK, resp)
+}
+
 func (c *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request) {
 	params := struct {
 		Password string `json:"password"`

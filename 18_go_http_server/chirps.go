@@ -31,13 +31,13 @@ func (c *apiConfig) handlerCreateChirp(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	token, err := auth.GetBearerToken(req.Header)
+	accessToken, err := auth.GetBearerToken(req.Header)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
 		return
 	}
 
-	validUserID, err := auth.ValidateJWT(token, c.jwtSecret)
+	validUserID, err := auth.ValidateJWT(accessToken, c.jwtSecret)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
 		return
@@ -130,4 +130,42 @@ func (c *apiConfig) handlerGetChirpByID(w http.ResponseWriter, req *http.Request
 	}
 
 	respondWithJSON(w, http.StatusOK, resp)
+}
+
+func (c *apiConfig) handlerDeleteChirpByID(w http.ResponseWriter, req *http.Request) {
+	chirpID, err := uuid.Parse(req.PathValue("chirpID"))
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid chirp ID", err)
+		return
+	}
+
+	accessToken, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid Access Token", err)
+		return
+	}
+
+	validUserID, err := auth.ValidateJWT(accessToken, c.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized", err)
+		return
+	}
+
+	chirp, err := c.db.GetChirpById(req.Context(), chirpID)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Chirp not found", err)
+		return
+	}
+
+	if chirp.UserID != validUserID {
+		respondWithError(w, http.StatusForbidden, "Method not allowed", nil)
+		return
+	}
+
+	if err := c.db.DeleteChirpById(req.Context(), chirp.ID); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error deleting chirp", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
