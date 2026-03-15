@@ -33,18 +33,21 @@
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
+            # --- Custom Build Scripts ---
+            (pkgs.writeShellScriptBin "go-build-linux" ''
+              CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build "$@"
+            '')
+
             # Go Development
             go
             gopls # Language Server
             gofumpt # Formatter
             go-tools # Static analysis tools
-            delve # Debugger (DAP)
-            golangci-lint # Linter (Recommended for Go extra)
 
             # Python Development (using uv)
             uv
             python312 # Base interpreter for uv to use
-            pyright # LSP
+            ty # LSP
             ruff # Linter & Formatter
 
             # SQL
@@ -64,9 +67,6 @@
             # --- Go Setup ---
             export GOPATH="$HOME/go"
             export PATH="$GOPATH/bin:$PATH"
-            export CGO_ENABLED=0
-            export GOOS=linux 
-            export GOARCH=amd64
 
             # --- Python/uv Setup ---
             export UV_PYTHON="$(which python3)"
