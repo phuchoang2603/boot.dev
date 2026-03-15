@@ -64,6 +64,9 @@
             # --- Go Setup ---
             export GOPATH="$HOME/go"
             export PATH="$GOPATH/bin:$PATH"
+            export CGO_ENABLED=0
+            export GOOS=linux 
+            export GOARCH=amd64
 
             # --- Python/uv Setup ---
             export UV_PYTHON="$(which python3)"
