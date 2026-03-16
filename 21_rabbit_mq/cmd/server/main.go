@@ -26,12 +26,12 @@ func main() {
 	gamelogic.PrintServerHelp()
 
 	for {
-		inputs := gamelogic.GetInput()
-		if len(inputs) == 0 {
+		words := gamelogic.GetInput()
+		if len(words) == 0 {
 			continue
 		}
 
-		switch inputs[0] {
+		switch words[0] {
 		case "pause":
 			fmt.Println("Pausing game...")
 			pubsub.PublishJSON(
@@ -58,7 +58,7 @@ func main() {
 		case "help":
 			gamelogic.PrintServerHelp()
 		default:
-			fmt.Printf("Unknown command: %s\n", inputs[0])
+			fmt.Printf("Unknown command: %s\n", words[0])
 		}
 	}
 }
