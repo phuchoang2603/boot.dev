@@ -47,9 +47,20 @@ func main() {
 		routing.ArmyMovesPrefix+"."+gs.GetUsername(),
 		routing.ArmyMovesPrefix+".*",
 		pubsub.TransientQueue,
-		handlerMove(gs),
+		handlerMove(gs, publishCh),
 	); err != nil {
 		log.Fatalf("Failed to subscribe to move messages: %v", err)
+	}
+
+	if err = pubsub.SubscribeJSON(
+		conn,
+		routing.ExchangePerilTopic,
+		routing.WarRecognitionsPrefix,
+		routing.WarRecognitionsPrefix+"."+gs.GetUsername(),
+		pubsub.DurableQueue,
+		handlerWar(gs),
+	); err != nil {
+		log.Fatalf("Failed to subscribe to war messages: %v", err)
 	}
 
 	for {

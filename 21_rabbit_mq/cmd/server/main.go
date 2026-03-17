@@ -31,7 +31,18 @@ func main() {
 		pubsub.DurableQueue,
 	)
 	if err != nil {
-		log.Fatalf("Failed to declare and bind queue: %v", err)
+		log.Fatalf("Failed to declare and bind game log queue: %v", err)
+	}
+
+	_, _, err = pubsub.DeclareAndBind(
+		conn,
+		routing.ExchangePerilDLX,
+		routing.DeadLetterQueue,
+		"",
+		pubsub.DurableQueue,
+	)
+	if err != nil {
+		log.Fatalf("Failed to declare and bind DLX queue: %v", err)
 	}
 
 	gamelogic.PrintServerHelp()
