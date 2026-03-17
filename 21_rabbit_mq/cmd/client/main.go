@@ -58,7 +58,7 @@ func main() {
 		routing.WarRecognitionsPrefix,
 		routing.WarRecognitionsPrefix+"."+gs.GetUsername(),
 		pubsub.DurableQueue,
-		handlerWar(gs),
+		handlerWar(gs, publishCh),
 	); err != nil {
 		log.Fatalf("Failed to subscribe to war messages: %v", err)
 	}

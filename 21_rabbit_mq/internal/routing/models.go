@@ -1,6 +1,8 @@
 package routing
 
-import "time"
+import (
+	"time"
+)
 
 type PlayingState struct {
 	IsPaused bool

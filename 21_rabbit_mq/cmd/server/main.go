@@ -23,15 +23,15 @@ func main() {
 		log.Fatalf("Failed to open a channel: %v", err)
 	}
 
-	_, _, err = pubsub.DeclareAndBind(
+	if err := pubsub.SubscribeGob(
 		conn,
 		routing.ExchangePerilTopic,
 		routing.GameLogSlug,
 		routing.GameLogSlug+".*",
 		pubsub.DurableQueue,
-	)
-	if err != nil {
-		log.Fatalf("Failed to declare and bind game log queue: %v", err)
+		handlerLog(),
+	); err != nil {
+		log.Fatalf("Failed to subscribe to game log messages: %v", err)
 	}
 
 	_, _, err = pubsub.DeclareAndBind(
