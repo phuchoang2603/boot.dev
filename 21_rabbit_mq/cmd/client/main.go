@@ -24,18 +24,18 @@ func main() {
 	}
 	queueName := routing.PauseKey + "." + username
 
-	_, _, err = pubsub.DeclareAndBind(
+	gs := gamelogic.NewGameState(username)
+
+	if err = pubsub.SubscribeJSON(
 		conn,
 		routing.ExchangePerilDirect,
 		queueName,
 		routing.PauseKey,
 		pubsub.TransientQueue,
-	)
-	if err != nil {
-		log.Fatalf("Failed to declare and bind queue: %v", err)
+		handlerPause(gs),
+	); err != nil {
+		log.Fatalf("Failed to subscribe to pause messages: %v", err)
 	}
-
-	gs := gamelogic.NewGameState(username)
 
 	for {
 		words := gamelogic.GetInput()
