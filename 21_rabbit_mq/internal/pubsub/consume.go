@@ -5,7 +5,6 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -70,6 +69,10 @@ func subscribe[T any](
 		return fmt.Errorf("failed to declare and bind queue: %w", err)
 	}
 
+	if err := subChan.Qos(10, 0, false); err != nil {
+		return fmt.Errorf("failed to set QoS: %w", err)
+	}
+
 	subDelChan, err := subChan.Consume(
 		queue.Name,
 		"",
@@ -88,7 +91,7 @@ func subscribe[T any](
 		for msg := range subDelChan {
 			val, err := unmarshaller(msg.Body)
 			if err != nil {
-				log.Printf("Failed to unmarshal message: %v", err)
+				fmt.Printf("Failed to unmarshal message: %v. Nacking and requeuing.\n", err)
 				continue
 			}
 
@@ -96,13 +99,13 @@ func subscribe[T any](
 			switch ackType {
 			case Ack:
 				msg.Ack(false)
-				log.Printf("Message acknowledged: %s", string(msg.Body))
+				fmt.Printf("Message acknowledged: %s\n", string(msg.Body))
 			case NackRequeue:
 				msg.Nack(false, true)
-				log.Printf("Message negatively acknowledged and requeued: %s", string(msg.Body))
+				fmt.Printf("Message negatively acknowledged and requeued: %s\n", string(msg.Body))
 			case NackDiscard:
 				msg.Nack(false, false)
-				log.Printf("Message negatively acknowledged and discarded: %s", string(msg.Body))
+				fmt.Printf("Message negatively acknowledged and discarded: %s\n", string(msg.Body))
 			}
 		}
 	}()
