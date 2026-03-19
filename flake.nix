@@ -60,7 +60,9 @@
 
             # For S3 course
             ffmpeg
-            awscli2
+
+            # For CICD course
+            turso-cli
           ];
 
           shellHook = ''
