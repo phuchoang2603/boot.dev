@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synergychat-api
+  labels:
+    app: synergychat-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: synergychat-api
+  template:
+    metadata:
+      labels:
+        app: synergychat-api
+    spec:
+      containers:
+        - name: synergychat-api
+          image: docker.io/bootdotdev/synergychat-api:latest
+          volumeMounts:
+            - name: synergychat-api-volume
+              mountPath: /persist
+          envFrom:
+            - configMapRef:
+                name: synergychat-api-configmap
+      volumes:
+        - name: synergychat-api-volume
+          persistentVolumeClaim:
+            claimName: synergychat-api-pvc
