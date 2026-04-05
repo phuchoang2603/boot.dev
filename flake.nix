@@ -49,6 +49,7 @@
             python312 # Base interpreter for uv to use
             ty # LSP
             ruff # Linter & Formatter
+            python312Packages.pytest
 
             # SQL
             sqlite
