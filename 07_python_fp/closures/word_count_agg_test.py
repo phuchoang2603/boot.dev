@@ -1,4 +1,4 @@
-from word_count_agg import *
+from word_count_agg import word_count_aggregator
 
 run_cases = [
     (
