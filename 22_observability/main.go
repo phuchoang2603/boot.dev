@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"errors"
 	"flag"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -64,52 +61,4 @@ func run(ctx context.Context, cancel context.CancelFunc, httpPort int, dataDir s
 		return 1
 	}
 	return 0
-}
-
-type closeFunc func() error
-
-func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
-	handlers := []slog.Handler{
-		slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelDebug,
-		}),
-	}
-	closers := []closeFunc{}
-
-	if logFile != "" {
-		file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
-		if err != nil {
-			return nil, func() error { return nil }, fmt.Errorf("failed to open log file: %w", err)
-		}
-		bufferedFile := bufio.NewWriterSize(file, 8192)
-
-		handlers = append(handlers,
-			slog.NewJSONHandler(bufferedFile, &slog.HandlerOptions{
-				Level: slog.LevelInfo,
-			}),
-		)
-
-		closers = append(closers, func() error {
-			if err := bufferedFile.Flush(); err != nil {
-				return err
-			}
-			if err = file.Close(); err != nil {
-				return err
-			}
-			return nil
-		},
-		)
-	}
-
-	closer := func() error {
-		var errs []error
-		for _, close := range closers {
-			if err := close(); err != nil {
-				errs = append(errs, err)
-			}
-		}
-		return errors.Join(errs...)
-	}
-
-	return slog.New(slog.NewMultiHandler(handlers...)), closer, nil
 }
