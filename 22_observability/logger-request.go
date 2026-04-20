@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"net"
 	"net/http"
 )
 
@@ -48,5 +50,35 @@ func httpError(ctx context.Context, w http.ResponseWriter, err error, status int
 	if logCtx, ok := ctx.Value(logContextKey).(*LogContext); ok {
 		logCtx.Error = err
 	}
-	http.Error(w, err.Error(), status)
+
+	msg := err.Error()
+	switch status {
+	case http.StatusUnauthorized, http.StatusForbidden, http.StatusInternalServerError:
+		msg = http.StatusText(status)
+	}
+
+	http.Error(w, msg, status)
+}
+
+func redactIP(hostport string) string {
+	host, _, err := net.SplitHostPort(hostport)
+	if err != nil {
+		return hostport
+	}
+
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return host
+	}
+
+	if ip.Equal(net.IPv6loopback) {
+		ip = net.IPv4(127, 0, 0, 1)
+	}
+
+	ip4 := ip.To4()
+	if ip4 == nil {
+		return host
+	}
+
+	return fmt.Sprintf("%d.%d.%d.x", ip4[0], ip4[1], ip4[2])
 }

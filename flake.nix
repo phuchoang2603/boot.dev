@@ -43,6 +43,7 @@
             gopls # Language Server
             gofumpt # Formatter
             go-tools # Static analysis tools
+            delve
 
             # Python Development (using uv)
             uv

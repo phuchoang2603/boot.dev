@@ -1,15 +1,21 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"os"
+	"slices"
 
 	"boot.dev/linko/internal/linkoerr"
+	"github.com/lmittmann/tint"
+	"github.com/mattn/go-isatty"
+	"github.com/natefinch/lumberjack"
 	pkgerr "github.com/pkg/errors"
 )
+
+var sensitiveKeys = []string{"password", "key", "apikey", "secret", "pin", "creditcardno", "user"}
 
 type closeFunc func() error
 
@@ -25,7 +31,8 @@ type multiError interface {
 
 func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	handlers := []slog.Handler{
-		slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		tint.NewHandler(os.Stderr, &tint.Options{
+			NoColor:     !isatty.IsCygwinTerminal(os.Stdout.Fd()) && !isatty.IsTerminal(os.Stdout.Fd()),
 			Level:       slog.LevelDebug,
 			ReplaceAttr: replaceAttr,
 		}),
@@ -33,24 +40,24 @@ func initializeLogger(logFile string) (*slog.Logger, closeFunc, error) {
 	closers := []closeFunc{}
 
 	if logFile != "" {
-		file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
-		if err != nil {
-			return nil, func() error { return nil }, fmt.Errorf("failed to open log file: %w", err)
+		rotationLogger := &lumberjack.Logger{
+			Filename:   logFile,
+			MaxSize:    1,
+			MaxAge:     28,
+			MaxBackups: 10,
+			LocalTime:  false,
+			Compress:   true,
 		}
-		bufferedFile := bufio.NewWriterSize(file, 8192)
 
 		handlers = append(handlers,
-			slog.NewJSONHandler(bufferedFile, &slog.HandlerOptions{
+			slog.NewJSONHandler(rotationLogger, &slog.HandlerOptions{
 				Level:       slog.LevelInfo,
 				ReplaceAttr: replaceAttr,
 			}),
 		)
 
 		closers = append(closers, func() error {
-			if err := bufferedFile.Flush(); err != nil {
-				return err
-			}
-			if err = file.Close(); err != nil {
+			if err := rotationLogger.Close(); err != nil {
 				return err
 			}
 			return nil
@@ -103,5 +110,17 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 			return a
 		}
 	}
+
+	if slices.Contains(sensitiveKeys, a.Key) {
+		return slog.String(a.Key, "[REDACTED]")
+	}
+
+	if u, err := url.Parse(a.Value.String()); err == nil {
+		if _, hasPassword := u.User.Password(); hasPassword {
+			u.User = url.UserPassword(u.User.Username(), "[REDACTED]")
+			return slog.String(a.Key, u.String())
+		}
+	}
+
 	return a
 }
