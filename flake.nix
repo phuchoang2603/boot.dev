@@ -43,7 +43,8 @@
             gopls # Language Server
             gofumpt # Formatter
             go-tools # Static analysis tools
-            delve
+            govulncheck # Vulnerability checker
+            delve # Debugger
 
             # Python Development (using uv)
             uv
@@ -57,9 +58,6 @@
             sqlite
             goose
             sqlc
-
-            # Json
-            vscode-langservers-extracted # LSPs for JSON, HTML, CSS
 
             # For S3 course
             ffmpeg
