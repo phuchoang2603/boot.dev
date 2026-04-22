@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"boot.dev/linko/internal/build"
-
 	"boot.dev/linko/internal/store"
 )
 
