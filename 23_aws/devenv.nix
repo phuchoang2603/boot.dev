@@ -4,6 +4,10 @@
 }:
 
 {
+  packages = with pkgs; [
+    awscli2
+  ];
+
   # https://devenv.sh/languages/
   languages.go = {
     enable = true;
