@@ -7,10 +7,12 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	nethttppprof "net/http/pprof"
 	"os"
 
 	"boot.dev/linko/internal/store"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type server struct {
@@ -25,7 +27,7 @@ func newServer(store store.Store, port int, cancel context.CancelFunc, logger *s
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: metricsMiddleware(requestTracing(requestLogger(logger)(mux))),
+		Handler: otelhttp.NewHandler(metricsMiddleware(requestTracing(requestLogger(logger)(mux))), "http.server"),
 	}
 
 	s := &server{
@@ -35,14 +37,29 @@ func newServer(store store.Store, port int, cancel context.CancelFunc, logger *s
 		logger:     logger,
 	}
 
-	mux.HandleFunc("GET /", s.handlerIndex)
-	mux.Handle("POST /api/login", s.authMiddleware(http.HandlerFunc(s.handlerLogin)))
-	mux.Handle("POST /api/shorten", s.authMiddleware(http.HandlerFunc(s.handlerShortenLink)))
-	mux.Handle("GET /api/stats", s.authMiddleware(http.HandlerFunc(s.handlerStats)))
-	mux.Handle("GET /api/urls", s.authMiddleware(http.HandlerFunc(s.handlerListURLs)))
-	mux.HandleFunc("GET /{shortCode}", s.handlerRedirect)
-	mux.HandleFunc("POST /admin/shutdown", s.handlerShutdown)
+	mux.Handle(
+		"POST /api/login",
+		withSpan("handler.login", s.authMiddleware(http.HandlerFunc(s.handlerLogin))),
+	)
+	mux.Handle(
+		"POST /api/shorten",
+		withSpan("handler.shorten_link", s.authMiddleware(http.HandlerFunc(s.handlerShortenLink))),
+	)
+	mux.Handle(
+		"GET /api/stats",
+		withSpan("handler.stats", s.authMiddleware(http.HandlerFunc(s.handlerStats))),
+	)
+	mux.Handle(
+		"GET /api/urls",
+		withSpan("handler.list_urls", s.authMiddleware(http.HandlerFunc(s.handlerListURLs))),
+	)
+	mux.Handle("GET /", withSpan("handler.index", http.HandlerFunc(s.handlerIndex)))
+	mux.Handle("GET /{shortCode}", withSpan("handler.redirect", http.HandlerFunc(s.handlerRedirect)))
+	mux.Handle("POST /admin/shutdown", withSpan("handler.shutdown", http.HandlerFunc(s.handlerShutdown)))
+
 	mux.Handle("GET /metrics", promhttp.Handler())
+	mux.Handle("GET /debug/pprof", s.authMiddleware(http.HandlerFunc(nethttppprof.Index)))
+	mux.Handle("GET /debug/pprof/profile", s.authMiddleware(http.HandlerFunc(nethttppprof.Profile)))
 
 	return s
 }

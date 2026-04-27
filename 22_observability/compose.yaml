@@ -7,12 +7,10 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
   node-exporter:
     image: prom/node-exporter:latest
     ports:
       - "9100:9100"
-
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -21,6 +19,12 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
 
 volumes:
   grafana_data:

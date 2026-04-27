@@ -50,7 +50,7 @@ func (s *server) handlerShortenLink(w http.ResponseWriter, r *http.Request) {
 		httpError(r.Context(), w, fmt.Errorf("invalid URL: must include scheme (http/https) and host"), http.StatusBadRequest)
 		return
 	}
-	if err := checkDestination(longURL); err != nil {
+	if err := checkDestination(r.Context(), longURL); err != nil {
 		httpError(r.Context(), w, fmt.Errorf("invalid target URL: %w", err), http.StatusBadRequest)
 		return
 	}
@@ -76,7 +76,7 @@ func (s *server) handlerRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, _ = bcrypt.GenerateFromPassword([]byte(longURL), bcrypt.DefaultCost)
-	if err := checkDestination(longURL); err != nil {
+	if err := checkDestination(r.Context(), longURL); err != nil {
 		httpError(r.Context(), w, fmt.Errorf("destination unavailable"), http.StatusBadGateway)
 		return
 	}
