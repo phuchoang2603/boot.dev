@@ -13,7 +13,7 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, created_at, updated_at, email, hashed_password)
-VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2)
+VALUES (gen_random_uuid(), now(), now(), $1, $2)
 RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
 `
 
@@ -69,10 +69,11 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 const getUserFromRefreshToken = `-- name: GetUserFromRefreshToken :one
 SELECT u.id, u.created_at, u.updated_at, u.email, u.hashed_password, u.is_chirpy_red
 FROM users u
-         JOIN refresh_tokens rt ON u.id = rt.user_id
-WHERE rt.token = $1
-  AND revoked_at IS NULL
-  AND expires_at > NOW()
+JOIN refresh_tokens rt ON u.id = rt.user_id
+WHERE
+    rt.token = $1
+    AND revoked_at IS NULL
+    AND expires_at > now()
 `
 
 func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (User, error) {
@@ -91,7 +92,8 @@ func (q *Queries) GetUserFromRefreshToken(ctx context.Context, token string) (Us
 
 const updateChirpyRed = `-- name: UpdateChirpyRed :one
 UPDATE users
-SET updated_at    = NOW(),
+SET
+    updated_at = now(),
     is_chirpy_red = $2
 WHERE id = $1
 RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
@@ -118,8 +120,9 @@ func (q *Queries) UpdateChirpyRed(ctx context.Context, arg UpdateChirpyRedParams
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET updated_at      = NOW(),
-    email           = $2,
+SET
+    updated_at = now(),
+    email = $2,
     hashed_password = $3
 WHERE id = $1
 RETURNING id, created_at, updated_at, email, hashed_password, is_chirpy_red
