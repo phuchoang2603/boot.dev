@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 )
 
 func main() {
-	const amqpConnURL = "amqp://guest:guest@localhost:5672/"
+	amqpConnURL := os.Getenv("AMQP_URL")
 	conn, err := amqp.Dial(amqpConnURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
