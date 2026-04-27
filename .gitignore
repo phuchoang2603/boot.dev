@@ -223,3 +223,4 @@ devenv.local.yaml
 /17_go_blog_aggregator/config.yml
 /17_go_blog_aggregator/compose.yaml
 /17_go_blog_aggregator/.gatorconfig.json
+/17_go_blog_aggregator/.sqruff

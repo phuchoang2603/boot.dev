@@ -15,6 +15,7 @@ in
   packages = with pkgs; [
     sqlc
     sqls
+    sqruff
     goose
   ];
 
@@ -22,6 +23,12 @@ in
     enable = true;
     delve.enable = true;
     lsp.enable = true;
+  };
+
+  files.".sqruff".ini = {
+    sqruff = {
+      dialect = "postgres";
+    };
   };
 
   files."config.yml".yaml = {
@@ -43,19 +50,25 @@ in
     ];
   };
 
-  files."compose.yaml".yaml = {
-    services.db = {
-      image = "postgres:16";
-      container_name = "blog-db";
-      environment = {
-        POSTGRES_USER = db_user;
-        POSTGRES_PASSWORD = db_pass;
-        POSTGRES_DB = db_name;
-      };
-      volumes = [ "db_data:/var/lib/postgresql/data" ];
-      ports = [ "${db_port}:5432" ];
+  services.postgres = {
+    enable = true;
+    package = pkgs.postgresql_16;
+    listen_addresses = db_host;
+    port = lib.toInt db_port;
+
+    initialDatabases = [
+      {
+        name = db_name;
+        user = db_user;
+        pass = db_pass;
+      }
+    ];
+
+    settings = {
+      log_connections = true;
+      log_statement = "all";
+      max_connections = 100;
     };
-    volumes.db_data = { };
   };
 
   files.".gatorconfig.json".json = {
