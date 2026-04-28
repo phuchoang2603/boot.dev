@@ -47,20 +47,24 @@ module "ec2" {
   instance_profile_name = module.iam.instance_profile_name
 }
 
-module "rds" {
-  source = "./modules/rds"
-
-  vpc_id                = module.network.vpc_id
-  private_subnet_ids    = values(module.network.private_subnet_ids)
-  app_security_group_id = module.ec2.security_group_id
-}
+# module "rds" {
+#   source = "./modules/rds"
+#
+#   vpc_id                = module.network.vpc_id
+#   private_subnet_ids    = values(module.network.private_subnet_ids)
+#   app_security_group_id = module.ec2.security_group_id
+# }
 
 module "iam" {
   source = "./modules/iam"
 }
 
-module "ssm" {
-  source = "./modules/ssm"
+# module "ssm" {
+#   source = "./modules/ssm"
+#
+#   database_url = module.rds.DATABASE_URL
+#   cmo_name     = "Dr. Strangelove"
+# }
 
   database_url = module.rds.DATABASE_URL
   cmo_name     = "Dr. Strangelove"
