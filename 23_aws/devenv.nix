@@ -9,13 +9,22 @@
   ];
 
   # https://devenv.sh/languages/
-  languages.go = {
-    enable = true;
-    delve = {
+  languages = {
+    go = {
       enable = true;
+      delve = {
+        enable = true;
+      };
+      lsp = {
+        enable = true;
+      };
     };
-    lsp = {
+    terraform = {
       enable = true;
+      lsp = {
+        enable = true;
+        package = pkgs.terraform-ls;
+      };
     };
   };
 
