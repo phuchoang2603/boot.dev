@@ -44,6 +44,7 @@
 #   subnet_id     = module.vpc.public_subnet_ids["a"]
 #   instance_name = "patientping-web-v2"
 #   my_ip_cidr    = "107.144.161.161/32"
+#   alarm_email = "xuanphuc.a1gv@gmail.com"
 # }
 
 # module "rds" {
@@ -59,13 +60,6 @@
 #
 #   database_url = module.rds.DATABASE_URL
 #   cmo_name     = "Dr. Strangelove"
-# }
-
-# module "cloudwatch" {
-#   source = "./modules/cloudwatch"
-#
-#   instance_id = module.ec2.instance_id
-#   alarm_email = "xuanphuc.a1gv@gmail.com"
 # }
 
 # module "route53" {

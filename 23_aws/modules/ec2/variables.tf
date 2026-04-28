@@ -26,3 +26,7 @@ variable "instance_name" {
 variable "my_ip_cidr" {
   type = string
 }
+
+variable "alarm_email" {
+  type = string
+}
