@@ -94,3 +94,10 @@ module "vpc" {
 #
 #   bucket_name = module.s3.bucket_name
 # }
+
+# module "ecs" {
+#   source = "./modules/ecs"
+#
+#   vpc_id            = module.vpc.vpc_id
+#   public_subnet_ids = values(module.vpc.public_subnet_ids)
+# }

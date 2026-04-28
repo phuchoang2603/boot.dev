@@ -35,4 +35,11 @@
       before = [ "devenv:enterShell" ];
     };
   };
+
+  enterShell = ''
+    export MY_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    export MY_REGION=$(aws configure get region)
+
+    echo "AWS Environment Loaded: $MY_REGION ($MY_ACCOUNT_ID)"
+  '';
 }
