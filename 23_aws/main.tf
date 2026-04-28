@@ -66,6 +66,10 @@ module "iam" {
 #   cmo_name     = "Dr. Strangelove"
 # }
 
-  database_url = module.rds.DATABASE_URL
-  cmo_name     = "Dr. Strangelove"
+module "cloudwatch" {
+  source = "./modules/cloudwatch"
+
+  instance_id = module.ec2.instance_id
+  alarm_email = "xuanphuc.a1gv@gmail.com"
+}
 }

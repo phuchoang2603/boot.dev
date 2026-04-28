@@ -11,3 +11,6 @@ resource "aws_instance" "web" {
     Name = var.instance_name
   }
 }
+output "instance_id" {
+  value = aws_instance.web.id
+}
