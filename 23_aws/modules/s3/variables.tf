@@ -1,0 +1,3 @@
+variable "codename" {
+  type = string
+}

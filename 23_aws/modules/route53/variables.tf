@@ -5,3 +5,7 @@ variable "vpc_id" {
 variable "www_ip" {
   type = string
 }
+
+variable "cdn_name" {
+  type = string
+}

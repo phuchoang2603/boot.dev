@@ -21,3 +21,11 @@ resource "aws_route53_record" "blog" {
   ttl     = 15
   records = ["www.patientping.internal"]
 }
+
+resource "aws_route53_record" "cdn" {
+  zone_id = aws_route53_zone.patientping_internal.zone_id
+  name    = "cdn"
+  type    = "CNAME"
+  ttl     = 15
+  records = [var.cdn_name]
+}

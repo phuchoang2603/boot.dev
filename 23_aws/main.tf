@@ -55,9 +55,9 @@ module "vpc" {
 #   app_security_group_id = module.ec2.security_group_id
 # }
 
-module "iam" {
-  source = "./modules/iam"
-}
+# module "iam" {
+#   source = "./modules/iam"
+# }
 
 # module "ssm" {
 #   source = "./modules/ssm"
@@ -73,11 +73,29 @@ module "iam" {
 #   alarm_email = "xuanphuc.a1gv@gmail.com"
 # }
 
-module "route53" {
-  source = "./modules/route53"
+# module "route53" {
+#   source = "./modules/route53"
+#
+#   vpc_id = module.vpc.vpc_id
+#   www_ip = "10.0.10.50"
+# }
 
-  vpc_id = module.vpc.vpc_id
-  www_ip = "10.0.10.50"
-}
+# module "route53" {
+#   source = "./modules/route53"
+#
+#   vpc_id   = module.vpc.vpc_id
+#   www_ip   = "10.0.10.50"
+#   cdn_name = module.cloudfront.domain_name
+# }
 
-}
+# module "s3" {
+#   source = "./modules/s3"
+#
+#   codename = "abc123"
+# }
+
+# module "cloudfront" {
+#   source = "./modules/cloudfront"
+#
+#   bucket_name = module.s3.bucket_name
+# }
