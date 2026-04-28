@@ -26,7 +26,3 @@ variable "instance_name" {
 variable "my_ip_cidr" {
   type = string
 }
-
-variable "instance_profile_name" {
-  type = string
-}

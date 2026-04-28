@@ -38,13 +38,12 @@ module "vpc" {
 # module "ec2" {
 #   source = "./modules/ec2"
 #
-#   key_name              = "patientping-key"
-#   ami_id                = "ami-078da082344936fbb"
-#   vpc_id                = module.vpc.vpc_id
-#   subnet_id             = module.vpc.public_subnet_ids["a"]
-#   instance_name         = "patientping-web-v2"
-#   my_ip_cidr            = "107.144.161.161/32"
-#   instance_profile_name = module.iam.instance_profile_name
+#   key_name      = "patientping-key"
+#   ami_id        = "ami-078da082344936fbb"
+#   vpc_id        = module.vpc.vpc_id
+#   subnet_id     = module.vpc.public_subnet_ids["a"]
+#   instance_name = "patientping-web-v2"
+#   my_ip_cidr    = "107.144.161.161/32"
 # }
 
 # module "rds" {
@@ -53,10 +52,6 @@ module "vpc" {
 #   vpc_id                = module.vpc.vpc_id
 #   private_subnet_ids    = values(module.vpc.private_subnet_ids)
 #   app_security_group_id = module.ec2.security_group_id
-# }
-
-# module "iam" {
-#   source = "./modules/iam"
 # }
 
 # module "ssm" {
