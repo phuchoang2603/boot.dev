@@ -1,5 +1,5 @@
-module "network" {
-  source = "./modules/network"
+module "vpc" {
+  source = "./modules/vpc"
 
   vpc_cidr = "10.0.0.0/22"
   vpc_name = "patientping"
@@ -40,8 +40,8 @@ module "ec2" {
 
   key_name              = "patientping-key"
   ami_id                = "ami-078da082344936fbb"
-  vpc_id                = module.network.vpc_id
-  subnet_id             = module.network.public_subnet_ids["a"]
+  vpc_id                = module.vpc.vpc_id
+  subnet_id             = module.vpc.public_subnet_ids["a"]
   instance_name         = "patientping-web-v2"
   my_ip_cidr            = "107.144.161.161/32"
   instance_profile_name = module.iam.instance_profile_name
@@ -50,8 +50,8 @@ module "ec2" {
 # module "rds" {
 #   source = "./modules/rds"
 #
-#   vpc_id                = module.network.vpc_id
-#   private_subnet_ids    = values(module.network.private_subnet_ids)
+#   vpc_id                = module.vpc.vpc_id
+#   private_subnet_ids    = values(module.vpc.private_subnet_ids)
 #   app_security_group_id = module.ec2.security_group_id
 # }
 
@@ -72,4 +72,9 @@ module "cloudwatch" {
   instance_id = module.ec2.instance_id
   alarm_email = "xuanphuc.a1gv@gmail.com"
 }
+
+module "route53" {
+  source = "./modules/route53"
+
+  vpc_id = module.vpc.vpc_id
 }
