@@ -6,6 +6,7 @@
 {
   packages = with pkgs; [
     awscli2
+    packer
   ];
 
   # https://devenv.sh/languages/
@@ -37,6 +38,7 @@
   };
 
   enterShell = ''
+    eval "$(aws configure export-credentials --profile default --format env)"
     export MY_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
     export MY_REGION=$(aws configure get region)
 

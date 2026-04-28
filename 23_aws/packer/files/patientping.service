@@ -1,0 +1,16 @@
+[Unit]
+Description=PatientPing Web App
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/patientping-web
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/bin/bash -lc 'cd /home/ec2-user/patientping-web && exec /home/ec2-user/.local/bin/uv run patientping.py >> /var/log/patientping.log 2>&1'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

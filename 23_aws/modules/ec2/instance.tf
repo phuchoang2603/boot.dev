@@ -1,5 +1,15 @@
+data "aws_ami" "patientping" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = [var.ami_name_pattern]
+  }
+}
+
 resource "aws_instance" "web" {
-  ami                         = var.ami_id
+  ami                         = data.aws_ami.patientping.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
   associate_public_ip_address = true

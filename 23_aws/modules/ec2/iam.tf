@@ -60,7 +60,7 @@ resource "aws_iam_role_policy" "cloudwatch_logs_access" {
         "logs:PutLogEvents",
         "logs:DescribeLogStreams",
       ]
-      Resource = ["arn:aws:logs:*:*:log-group:/ecs/patientping-ecs*"]
+      Resource = ["arn:aws:logs:*:*:log-group:patientping-monitoring*"]
     }]
   })
 }
