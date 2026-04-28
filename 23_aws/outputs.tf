@@ -6,3 +6,7 @@
 #   value     = module.rds.DATABASE_URL
 #   sensitive = true
 # }
+
+output "invoke_url" {
+  value = module.lambda.invoke_url
+}
