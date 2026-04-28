@@ -7,6 +7,10 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "ami_id" {
+  type = string
+}
+
 variable "vpc_id" {
   type = string
 }
@@ -20,5 +24,9 @@ variable "instance_name" {
 }
 
 variable "my_ip_cidr" {
+  type = string
+}
+
+variable "instance_profile_name" {
   type = string
 }

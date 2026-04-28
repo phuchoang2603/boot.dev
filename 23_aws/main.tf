@@ -38,9 +38,17 @@ module "network" {
 module "ec2" {
   source = "./modules/ec2"
 
-  key_name      = "patientping-key"
-  vpc_id        = module.network.vpc_id
-  subnet_id     = module.network.public_subnet_ids["a"]
-  instance_name = "patientping-web"
-  my_ip_cidr    = "107.144.161.161/32"
+  key_name             = "patientping-key"
+  ami_id               = "ami-078da082344936fbb"
+  vpc_id               = module.network.vpc_id
+  subnet_id            = module.network.public_subnet_ids["a"]
+  instance_name        = "patientping-web-v2"
+  my_ip_cidr           = "107.144.161.161/32"
+module "rds" {
+  source = "./modules/rds"
+
+  vpc_id             = module.network.vpc_id
+  private_subnet_ids = values(module.network.private_subnet_ids)
+  app_security_group_id = module.ec2.security_group_id
+}
 }
