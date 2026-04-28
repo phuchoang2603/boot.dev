@@ -4,7 +4,7 @@ resource "aws_cloudfront_distribution" "favicon" {
   default_root_object = "favicon.ico"
 
   origin {
-    domain_name = "${var.bucket_name}.s3.amazonaws.com"
+    domain_name = "${aws_s3_bucket.favicon.bucket}.s3.amazonaws.com"
     origin_id   = "patientping-favicon-origin"
   }
 
