@@ -1,4 +1,16 @@
 class Graph:
+    # def depth_first_search(self, start_vertex):
+    #     visited = []
+    #     stack = [start_vertex]
+    #     while len(stack) > 0:
+    #         current_vertex = stack.pop()
+    #         if current_vertex not in visited:
+    #             visited.append(current_vertex)
+    #             for neigh in sorted(self.graph[current_vertex], reverse=True):
+    #                 if neigh not in visited:
+    #                     stack.append(neigh)
+    #     return visited
+
     def depth_first_search(self, start_vertex):
         visited = []
         self.depth_first_search_r(visited, start_vertex)
@@ -9,8 +21,6 @@ class Graph:
         for neigh in sorted(self.graph[current_vertex]):
             if neigh not in visited:
                 self.depth_first_search_r(visited, neigh)
-
-        # don't touch below this line
 
     def __init__(self):
         self.graph = {}
